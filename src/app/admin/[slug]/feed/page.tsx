@@ -11,6 +11,7 @@ import {
 } from "@/lib/data";
 import { CategoryCounts } from "@/components/CategoryCounts";
 import { MonthSelector } from "@/components/MonthSelector";
+import { CopyLinkButton } from "@/components/CopyLinkButton";
 import { MiniCalendar } from "@/components/MiniCalendar";
 import { SetupNotice } from "@/components/SetupNotice";
 import { StrategyEditor } from "../StrategyEditor";
@@ -49,7 +50,10 @@ export default async function ClientFeedPage({
       <div className="flex flex-1 flex-col gap-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <CategoryCounts posts={posts} dark />
-          <MonthSelector months={months} current={monthKey} basePath={`/admin/${slug}/feed`} dark />
+          <div className="flex flex-wrap items-center gap-3">
+            <CopyLinkButton path={`/${slug}/feed?t=${client.access_token}`} dark />
+            <MonthSelector months={months} current={monthKey} basePath={`/admin/${slug}/feed`} dark />
+          </div>
         </div>
 
         <StrategyEditor

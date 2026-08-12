@@ -1,0 +1,83 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { isSupabaseConfigured } from "@/lib/supabase";
+import {
+  currentMonthKey,
+  getClientBySlug,
+  getClientContext,
+  getMonth,
+  getPostsForMonth,
+  getProjectObjective,
+  listScopeItems,
+} from "@/lib/data";
+import { CategoryCounts } from "@/components/CategoryCounts";
+import { CopyLinkButton } from "@/components/CopyLinkButton";
+import { SetupNotice } from "@/components/SetupNotice";
+import { ProjectObjectiveEditor } from "./ProjectObjectiveEditor";
+import { ClientContextEditor } from "./ClientContextEditor";
+import { ScopeItemsEditor } from "./ScopeItemsEditor";
+
+const NAV_CARDS = [
+  { href: "feed", title: "Feed de aprovação", sub: "Foco do mês, grid e status de aprovação" },
+  { href: "roteiros", title: "Roteiros", sub: "Aprovação do texto do carrossel antes do design" },
+  { href: "etapa", title: "Etapa do planejamento", sub: "Aberto → Escrita → Design → Aprovação" },
+  { href: "demandas", title: "Demandas", sub: "Pedidos avulsos fora do fluxo de aprovação" },
+];
+
+export default async function ClientHomePage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  if (!isSupabaseConfigured) {
+    return <SetupNotice />;
+  }
+
+  const { slug } = await params;
+  const client = await getClientBySlug(slug);
+  if (!client) notFound();
+
+  const monthKey = currentMonthKey();
+  const [month, context, objective, scopeItems] = await Promise.all([
+    getMonth(client.id, monthKey),
+    getClientContext(client.id),
+    getProjectObjective(client.id),
+    listScopeItems(client.id),
+  ]);
+  const posts = month ? await getPostsForMonth(month.id) : [];
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <CategoryCounts posts={posts} dark />
+        <CopyLinkButton path={`/${client.slug}?t=${client.access_token}`} />
+      </div>
+
+      <ProjectObjectiveEditor slug={slug} initialText={objective?.text ?? ""} />
+
+      <ClientContextEditor
+        slug={slug}
+        initialTone={context?.tone ?? ""}
+        initialAudience={context?.target_audience ?? ""}
+        initialDontDo={context?.dont_do ?? ""}
+      />
+
+      <ScopeItemsEditor slug={slug} initialItems={scopeItems} />
+
+      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+        {NAV_CARDS.map((card) => (
+          <Link
+            key={card.href}
+            href={`/admin/${slug}/${card.href}`}
+            className="rounded-panel border border-painel-border bg-painel-surface p-4 hover:border-azul"
+          >
+            <p className="font-display text-fs-base font-semibold text-painel-text">
+              {card.title}
+            </p>
+            <p className="mt-1 font-body text-fs-sm text-painel-text-muted">{card.sub}</p>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}

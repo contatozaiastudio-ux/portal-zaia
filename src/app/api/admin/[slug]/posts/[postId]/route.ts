@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { isSupabaseConfigured } from "@/lib/supabase";
-import { deletePost, updatePost } from "@/lib/data";
+import { deletePost, setPostStatus, updatePost } from "@/lib/data";
 import { requireOwnedPost, jsonError } from "@/lib/admin-guard";
 
 export async function PATCH(
@@ -14,6 +14,17 @@ export async function PATCH(
     const { slug, postId } = await params;
     await requireOwnedPost(slug, postId);
     const body = await request.json();
+
+    if (body.status !== undefined) {
+      // Only the team can move a post into "ajuste_feito" from here — the
+      // client's own approve/ajustar transitions go through the client route.
+      if (body.status !== "ajuste_feito") {
+        return NextResponse.json({ error: "Status inválido" }, { status: 400 });
+      }
+      await setPostStatus(postId, "ajuste_feito", "");
+      return NextResponse.json({ ok: true });
+    }
+
     await updatePost(postId, {
       type: body.type,
       caption: body.caption,

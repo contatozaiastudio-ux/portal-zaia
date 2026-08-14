@@ -1,5 +1,5 @@
 export type PostType = "carrossel" | "video" | "estatico";
-export type PostStatus = "pendente" | "aprovado" | "ajustar";
+export type PostStatus = "pendente" | "aprovado" | "ajustar" | "ajuste_feito";
 export type TeamMember = "ju" | "carol" | "analista";
 export type PlanningStage = "aberto" | "escrita" | "design" | "aprovacao";
 export type DemandOrigin = "whatsapp" | "ligacao" | "reuniao" | "email";
@@ -123,6 +123,7 @@ export const POST_STATUS_LABEL: Record<PostStatus, string> = {
   pendente: "Pendente",
   aprovado: "Aprovado",
   ajustar: "Ajustar",
+  ajuste_feito: "Ajuste feito",
 };
 
 export const TEAM_MEMBER_LABEL: Record<TeamMember, string> = {

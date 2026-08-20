@@ -6,6 +6,7 @@ import {
   getMonth,
   getScriptsForMonth,
   listMonthKeysForClient,
+  upcomingMonthKeys,
 } from "@/lib/data";
 import { SetupNotice } from "@/components/SetupNotice";
 import { MonthSelector } from "@/components/MonthSelector";
@@ -29,10 +30,14 @@ export default async function AdminScriptsPage({
   if (!client) notFound();
 
   const monthKey = monthParam ?? currentMonthKey();
-  const [month, months] = await Promise.all([
+  const [month, savedMonths] = await Promise.all([
     getMonth(client.id, monthKey),
     listMonthKeysForClient(client.id),
   ]);
+  // Merge in upcoming months that don't have a row yet, so the team can
+  // select "Setembro" ahead of time instead of being stuck adding it to
+  // whatever month is currently open (see ensureMonth in the scripts route).
+  const months = Array.from(new Set([...savedMonths, ...upcomingMonthKeys()])).sort();
   const scripts = month ? await getScriptsForMonth(month.id) : [];
 
   return (

@@ -8,6 +8,7 @@ import {
   getPostsForMonth,
   listMonthKeysForClient,
   listUnlinkedApprovedScripts,
+  upcomingMonthKeys,
 } from "@/lib/data";
 import { CategoryCounts } from "@/components/CategoryCounts";
 import { MonthSelector } from "@/components/MonthSelector";
@@ -37,11 +38,15 @@ export default async function ClientFeedPage({
   if (!client) notFound();
 
   const monthKey = monthParam ?? currentMonthKey();
-  const [month, months, pendingPosts] = await Promise.all([
+  const [month, savedMonths, pendingPosts] = await Promise.all([
     getMonth(client.id, monthKey),
     listMonthKeysForClient(client.id),
     getPendingPostsForClient(client.id),
   ]);
+  // Merge in upcoming months that don't have a row yet, so the team can
+  // plan ahead instead of being stuck adding everything to whatever month
+  // happens to be open already (see ensureMonth in the posts route).
+  const months = Array.from(new Set([...savedMonths, ...upcomingMonthKeys()])).sort();
   const posts = month ? await getPostsForMonth(month.id) : [];
   const unlinkedScripts = month ? await listUnlinkedApprovedScripts(month.id) : [];
 

@@ -444,6 +444,21 @@ export function currentMonthKey(): string {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 }
 
+// Months only exist in the DB once something is created in them (see
+// ensureMonth), so a selector built purely from listMonthKeysForClient can
+// never offer a future month to plan ahead in — there'd be nothing to click.
+// This generates the current month key plus `count` months forward so the
+// team can pick "Setembro" before anything has been saved there yet.
+export function upcomingMonthKeys(count = 6): string[] {
+  const now = new Date();
+  const keys: string[] = [];
+  for (let i = 0; i <= count; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    keys.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`);
+  }
+  return keys;
+}
+
 export async function listMonthKeysForClient(clientId: string): Promise<string[]> {
   const { data, error } = await getSupabase()
     .from("months")

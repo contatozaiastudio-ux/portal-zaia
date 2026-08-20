@@ -8,6 +8,10 @@
   --marrom-escuro: #350705;
   --rosa: #af8d86;
   --bordo: #48110c;
+  /* Dark-on-light stand-in for amarelo/amarelo-deep labels inside cards —
+     those are pale by design (meant to pop on a dark card), unreadable on
+     the now-light card fill. See .bg-painel-surface overrides below. */
+  --amarelo-ink: #8a6a1a;
   --branco: #ffffff;
   --ink: #1c1a19;
 
@@ -75,6 +79,7 @@
   --color-painel-accent-border: var(--painel-accent-border);
   --color-painel-ink: var(--painel-ink);
   --color-painel-ink-muted: var(--painel-ink-muted);
+  --color-amarelo-ink: var(--amarelo-ink);
 
   /* Closed 8-step type scale from the briefing (section 3) — used only
      inside the Painel, named fs-* so they never collide with Tailwind's
@@ -155,6 +160,20 @@ body {
 .bg-painel-surface .bg-white\/10,
 .bg-painel-surface-strong .bg-white\/10 {
   background-color: rgba(53, 7, 5, 0.11);
+}
+
+/* Same story for pale brand-accent label colors (section titles like
+   "OBJETIVO DO PROJETO", pending badges) — azul/amarelo/amarelo-deep are
+   built to pop on a dark card and vanish on the light one. */
+.bg-painel-surface .text-azul,
+.bg-painel-surface-strong .text-azul {
+  color: var(--azul-deep);
+}
+.bg-painel-surface .text-amarelo,
+.bg-painel-surface-strong .text-amarelo,
+.bg-painel-surface .text-amarelo-deep,
+.bg-painel-surface-strong .text-amarelo-deep {
+  color: var(--amarelo-ink);
 }
 
 /* Lets a normal-flow block bleed to the viewport's full width even while

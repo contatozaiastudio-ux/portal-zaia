@@ -92,12 +92,13 @@ body {
   font-family: var(--font-body), sans-serif;
 }
 
-/* Glassmorphism (brief section 5). Tailwind's bg-*/border-* utilities only
-   cover color — the frosted-glass blur has to be added as plain CSS on the
-   same generated class names so every existing bg-painel-surface(-strong)
-   and bg-painel-accent-surface card gets it for free, with no per-component
-   edits. Kanban cards (StageBoard) use inline hex styles, not these classes,
-   so section 2.2's own color logic is untouched. */
+/* Glassmorphism (brief section 5). Tailwind's bg- and border- utilities
+   only cover color — the frosted-glass blur has to be added as plain CSS
+   on the same generated class names so every existing bg-painel-surface,
+   bg-painel-surface-strong and bg-painel-accent-surface card gets it for
+   free, with no per-component edits. Kanban cards (StageBoard) use inline
+   hex styles, not these classes, so section 2.2's own color logic stays
+   untouched. */
 .bg-painel-surface,
 .bg-painel-surface-strong,
 .bg-painel-accent-surface {

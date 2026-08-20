@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { isSupabaseConfigured } from "@/lib/supabase";
-import { getClientBySlug, getClientLinks } from "@/lib/data";
+import { getClientBySlug, getClientLinks, mediaPublicUrl } from "@/lib/data";
 import { LogoutButton } from "@/components/LogoutButton";
 import { SetupNotice } from "@/components/SetupNotice";
 import { ClientQuickLinks } from "@/components/ClientQuickLinks";
+import { ClientCoverImage } from "@/components/ClientCoverImage";
 import { ClientNavTabs } from "./ClientNavTabs";
 
 export default async function ClientPortalLayout({
@@ -26,6 +27,10 @@ export default async function ClientPortalLayout({
 
   return (
     <div className="flex min-h-full flex-1 flex-col">
+      <ClientCoverImage
+        slug={slug}
+        initialUrl={client.cover_path ? mediaPublicUrl(client.cover_path) : null}
+      />
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-painel-border px-6 py-4">
         <div className="flex items-center gap-3">
           <Link

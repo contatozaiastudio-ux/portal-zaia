@@ -7,12 +7,9 @@ import {
   getClientContext,
   getClientLinks,
   getMonth,
-  getPostsForMonth,
   getProjectObjective,
   listScopeItems,
 } from "@/lib/data";
-import { CategoryCounts } from "@/components/CategoryCounts";
-import { CopyLinkButton } from "@/components/CopyLinkButton";
 import { SetupNotice } from "@/components/SetupNotice";
 import { ProjectObjectiveEditor } from "./ProjectObjectiveEditor";
 import { BrandPositioningEditor } from "./BrandPositioningEditor";
@@ -49,15 +46,9 @@ export default async function ClientHomePage({
     listScopeItems(client.id),
     getClientLinks(client.id),
   ]);
-  const posts = month ? await getPostsForMonth(month.id) : [];
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <CategoryCounts posts={posts} dark />
-        <CopyLinkButton path={`/${client.slug}?t=${client.access_token}`} />
-      </div>
-
       <section className="flex flex-col gap-4 rounded-panel border border-painel-border bg-painel-surface p-5">
         <div>
           <span className="font-body text-fs-xs font-bold uppercase tracking-widest text-azul">

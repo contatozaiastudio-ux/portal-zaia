@@ -25,7 +25,7 @@ import { hasClientContext } from "./types";
 
 const MEDIA_BUCKET = "media";
 
-function mediaPublicUrl(storagePath: string): string {
+export function mediaPublicUrl(storagePath: string): string {
   const { data } = getSupabase().storage.from(MEDIA_BUCKET).getPublicUrl(storagePath);
   return data.publicUrl;
 }
@@ -122,6 +122,59 @@ export async function listClients(opts?: { includeInactive?: boolean }): Promise
 
 export async function setClientActive(clientId: string, active: boolean): Promise<void> {
   const { error } = await getSupabase().from("clients").update({ active }).eq("id", clientId);
+  if (error) throw error;
+}
+
+// Notion-style page cover, shown across every tab of a client's admin
+// section (see ClientCoverImage + admin/[slug]/layout.tsx). Same
+// sign/upload/confirm flow as post media, just scoped to the client instead
+// of a post so it isn't tied to any particular month.
+export async function createSignedClientCoverUpload(
+  clientSlug: string,
+  fileName: string
+): Promise<{ path: string; token: string }> {
+  const safeName = fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
+  const path = `${clientSlug}/cover/${Date.now()}-${safeName}`;
+  const { data, error } = await getSupabase()
+    .storage.from(MEDIA_BUCKET)
+    .createSignedUploadUrl(path);
+  if (error) throw error;
+  return { path, token: data.token };
+}
+
+export async function setClientCover(clientId: string, storagePath: string): Promise<void> {
+  const { data: existing, error: fetchError } = await getSupabase()
+    .from("clients")
+    .select("cover_path")
+    .eq("id", clientId)
+    .single();
+  if (fetchError) throw fetchError;
+
+  const { error } = await getSupabase()
+    .from("clients")
+    .update({ cover_path: storagePath })
+    .eq("id", clientId);
+  if (error) throw error;
+
+  if (existing?.cover_path) {
+    await getSupabase().storage.from(MEDIA_BUCKET).remove([existing.cover_path]);
+  }
+}
+
+export async function clearClientCover(clientId: string): Promise<void> {
+  const { data: existing, error: fetchError } = await getSupabase()
+    .from("clients")
+    .select("cover_path")
+    .eq("id", clientId)
+    .single();
+  if (fetchError) throw fetchError;
+  if (!existing?.cover_path) return;
+
+  await getSupabase().storage.from(MEDIA_BUCKET).remove([existing.cover_path]);
+  const { error } = await getSupabase()
+    .from("clients")
+    .update({ cover_path: null })
+    .eq("id", clientId);
   if (error) throw error;
 }
 

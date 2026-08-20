@@ -13,6 +13,7 @@ export interface Client {
   active: boolean;
   client_stage_id: string;
   client_stage_updated_at: string;
+  cover_path: string | null;
 }
 
 // Agency-wide pipeline stage — tracks where a client account sits in the

@@ -24,7 +24,7 @@ export function ClientNavTabs({ slug }: { slug: string }) {
             <Link
               key={tab.href}
               href={tab.href}
-              className={`whitespace-nowrap rounded-panel-md px-3.5 py-2 font-body text-fs-sm font-semibold ${
+              className={`whitespace-nowrap rounded-panel-md px-3.5 py-2 font-body text-fs-md font-semibold uppercase tracking-wide ${
                 isActive ? "bg-azul text-marrom-escuro" : "text-painel-text-muted hover:text-painel-text"
               }`}
             >

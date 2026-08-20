@@ -15,9 +15,11 @@ import { CategoryCounts } from "@/components/CategoryCounts";
 import { CopyLinkButton } from "@/components/CopyLinkButton";
 import { SetupNotice } from "@/components/SetupNotice";
 import { ProjectObjectiveEditor } from "./ProjectObjectiveEditor";
+import { BrandPositioningEditor } from "./BrandPositioningEditor";
 import { ClientContextEditor } from "./ClientContextEditor";
 import { ClientLinksEditor } from "./ClientLinksEditor";
 import { ScopeItemsEditor } from "./ScopeItemsEditor";
+import { StageTracker } from "./etapa/StageTracker";
 
 const NAV_CARDS = [
   { href: "feed", title: "Feed de aprovação", sub: "Foco do mês, grid e status de aprovação" },
@@ -56,7 +58,21 @@ export default async function ClientHomePage({
         <CopyLinkButton path={`/${client.slug}?t=${client.access_token}`} />
       </div>
 
+      <section className="flex flex-col gap-4 rounded-panel border border-painel-border bg-painel-surface p-5">
+        <div>
+          <span className="font-body text-fs-xs font-bold uppercase tracking-widest text-azul">
+            Etapa do planejamento
+          </span>
+          <p className="mt-1.5 font-body text-fs-sm text-painel-text-muted">
+            Aberto → Escrita → Design → Pronto p/ aprovação — clique numa etapa pra atualizar.
+          </p>
+        </div>
+        <StageTracker slug={slug} monthKey={monthKey} initialStage={month?.planning_stage ?? "aberto"} />
+      </section>
+
       <ProjectObjectiveEditor slug={slug} initialText={objective?.text ?? ""} />
+
+      <BrandPositioningEditor slug={slug} initialText={objective?.positioning ?? ""} />
 
       <ClientContextEditor
         slug={slug}

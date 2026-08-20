@@ -340,6 +340,13 @@ export async function upsertProjectObjective(clientId: string, text: string): Pr
   if (error) throw error;
 }
 
+export async function upsertBrandPositioning(clientId: string, positioning: string): Promise<void> {
+  const { error } = await getSupabase()
+    .from("project_objectives")
+    .upsert({ client_id: clientId, positioning, updated_at: new Date().toISOString() });
+  if (error) throw error;
+}
+
 export async function listScopeItems(clientId: string): Promise<ScopeItem[]> {
   const { data, error } = await getSupabase()
     .from("scope_items")

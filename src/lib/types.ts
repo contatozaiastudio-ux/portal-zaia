@@ -51,6 +51,7 @@ export function hasClientContext(context: ClientContext | null): boolean {
 export interface ProjectObjective {
   client_id: string;
   text: string;
+  positioning: string;
 }
 
 export interface ScopeItem {

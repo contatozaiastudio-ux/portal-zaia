@@ -107,6 +107,15 @@ body {
   font-family: var(--font-body), sans-serif;
 }
 
+/* Textareas across the app use a small fixed `rows`, so long text just
+   scrolls inside a tiny box instead of showing in full. Auto-grow to fit
+   the content instead, capped so one giant paste can't blow up the page. */
+textarea {
+  field-sizing: content;
+  max-height: 480px;
+  overflow-y: auto;
+}
+
 /* Glassmorphism (brief section 5). Tailwind's bg- and border- utilities
    only cover color — the frosted-glass blur has to be added as plain CSS
    on the same generated class names so every existing bg-painel-surface,
@@ -174,6 +183,10 @@ body {
 .bg-painel-surface .text-amarelo-deep,
 .bg-painel-surface-strong .text-amarelo-deep {
   color: var(--amarelo-ink);
+}
+.bg-painel-surface .text-rosa,
+.bg-painel-surface-strong .text-rosa {
+  color: var(--painel-ink-muted);
 }
 
 /* Lets a normal-flow block bleed to the viewport's full width even while

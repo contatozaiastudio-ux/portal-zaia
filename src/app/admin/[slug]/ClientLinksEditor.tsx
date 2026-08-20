@@ -56,42 +56,20 @@ export function ClientLinksEditor({
         Links de acesso rápido
       </span>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <label className="flex flex-col gap-1">
-          <span className="font-body text-fs-xs text-painel-text-muted">Notion</span>
-          <input
-            value={notion}
-            onChange={(e) => setNotion(e.target.value)}
-            placeholder="https://notion.so/..."
-            className="rounded-panel-md border border-painel-border bg-white/7 p-2 font-body text-fs-base text-painel-text placeholder:text-painel-text-muted"
-          />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="font-body text-fs-xs text-painel-text-muted">Drive</span>
-          <input
-            value={drive}
-            onChange={(e) => setDrive(e.target.value)}
-            placeholder="https://drive.google.com/..."
-            className="rounded-panel-md border border-painel-border bg-white/7 p-2 font-body text-fs-base text-painel-text placeholder:text-painel-text-muted"
-          />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="font-body text-fs-xs text-painel-text-muted">Canva · Feed</span>
-          <input
-            value={canvaFeed}
-            onChange={(e) => setCanvaFeed(e.target.value)}
-            placeholder="https://canva.com/design/..."
-            className="rounded-panel-md border border-painel-border bg-white/7 p-2 font-body text-fs-base text-painel-text placeholder:text-painel-text-muted"
-          />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="font-body text-fs-xs text-painel-text-muted">Canva · Stories</span>
-          <input
-            value={canvaStories}
-            onChange={(e) => setCanvaStories(e.target.value)}
-            placeholder="https://canva.com/design/..."
-            className="rounded-panel-md border border-painel-border bg-white/7 p-2 font-body text-fs-base text-painel-text placeholder:text-painel-text-muted"
-          />
-        </label>
+        <LinkField label="Notion" value={notion} onChange={setNotion} placeholder="https://notion.so/..." />
+        <LinkField label="Drive" value={drive} onChange={setDrive} placeholder="https://drive.google.com/..." />
+        <LinkField
+          label="Canva · Feed"
+          value={canvaFeed}
+          onChange={setCanvaFeed}
+          placeholder="https://canva.com/design/..."
+        />
+        <LinkField
+          label="Canva · Stories"
+          value={canvaStories}
+          onChange={setCanvaStories}
+          placeholder="https://canva.com/design/..."
+        />
       </div>
       <div className="flex items-center gap-3">
         <button
@@ -105,5 +83,44 @@ export function ClientLinksEditor({
         {error && <span className="font-body text-fs-xs text-amarelo-deep">{error}</span>}
       </div>
     </section>
+  );
+}
+
+function LinkField({
+  label,
+  value,
+  onChange,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder: string;
+}) {
+  const trimmed = value.trim();
+  const href = trimmed && !/^https?:\/\//i.test(trimmed) ? `https://${trimmed}` : trimmed;
+
+  return (
+    <label className="flex flex-col gap-1">
+      <span className="font-body text-fs-xs text-painel-text-muted">{label}</span>
+      <div className="flex gap-2">
+        <input
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className="flex-1 rounded-panel-md border border-painel-border bg-white/7 p-2 font-body text-fs-base text-painel-text placeholder:text-painel-text-muted"
+        />
+        {trimmed && (
+          <a
+            href={href}
+            target="_blank"
+            rel="noreferrer"
+            className="flex shrink-0 items-center rounded-panel-md bg-azul px-3 font-display text-fs-xs font-semibold text-marrom-escuro hover:opacity-90"
+          >
+            Abrir ↗
+          </a>
+        )}
+      </div>
+    </label>
   );
 }

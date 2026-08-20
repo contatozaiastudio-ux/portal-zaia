@@ -7,7 +7,7 @@
   --amarelo-deep: #e4d998;
   --marrom-escuro: #350705;
   --rosa: #af8d86;
-  --bordo: #7a1e3c;
+  --bordo: #48110c;
   --branco: #ffffff;
   --ink: #1c1a19;
 
@@ -25,8 +25,8 @@
      original spec but read poorly in practice. */
   --painel-bg: #24100d;
   --painel-bg-image: url("/backgrounds/flow-bg.jpg");
-  --painel-surface: rgba(36, 16, 13, 0.68);
-  --painel-surface-strong: rgba(36, 16, 13, 0.82);
+  --painel-surface: rgba(36, 16, 13, 0.82);
+  --painel-surface-strong: rgba(36, 16, 13, 0.92);
   --painel-border: rgba(243, 239, 230, 0.22);
   --painel-text: #f5ece6;
   --painel-text-muted: #b99c94;

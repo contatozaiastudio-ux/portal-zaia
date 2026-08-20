@@ -16,13 +16,23 @@
 
   /* Painel ZAIA Studio (team area, /admin/**) dark theme — scoped by
      wrapping .painel-zaia in src/app/admin/layout.tsx, not a global
-     dark-mode switch. Client-facing pages never use these. */
+     dark-mode switch. Client-facing pages never use these.
+     Glassmorphism (brief section 5): full-bleed photo behind everything,
+     cards float as frosted cream glass — see .bg-painel-surface* rules
+     below for the backdrop-filter half of the spec Tailwind can't express
+     as a plain color token. */
   --painel-bg: #24100d;
-  --painel-surface: rgba(255, 255, 255, 0.055);
-  --painel-surface-strong: rgba(255, 255, 255, 0.1);
-  --painel-border: rgba(255, 255, 255, 0.14);
+  --painel-bg-image: url("/backgrounds/flow-bg.jpg");
+  --painel-surface: rgba(243, 239, 230, 0.14);
+  --painel-surface-strong: rgba(243, 239, 230, 0.22);
+  --painel-border: rgba(243, 239, 230, 0.25);
   --painel-text: #f5ece6;
   --painel-text-muted: #b99c94;
+
+  /* Urgency/accent glass variant — reserved for the one or two cards that
+     need to stand out (e.g. the day-25 deadline warning), not the default. */
+  --painel-accent-surface: rgba(52, 22, 20, 0.55);
+  --painel-accent-border: rgba(238, 231, 185, 0.3);
 }
 
 @theme inline {
@@ -53,6 +63,8 @@
   --color-painel-border: var(--painel-border);
   --color-painel-text: var(--painel-text);
   --color-painel-text-muted: var(--painel-text-muted);
+  --color-painel-accent-surface: var(--painel-accent-surface);
+  --color-painel-accent-border: var(--painel-accent-border);
 
   /* Closed 8-step type scale from the briefing (section 3) — used only
      inside the Painel, named fs-* so they never collide with Tailwind's
@@ -67,14 +79,36 @@
   --text-fs-hero: 32px;
 
   /* 3 radius tokens from the briefing, named rounded-panel-* so they don't
-     touch the default rounded-sm/md/lg already used by client-facing pages. */
+     touch the default rounded-sm/md/lg already used by client-facing pages.
+     --radius-panel bumped to 20px per the glassmorphism spec (section 5). */
   --radius-panel-sm: 6px;
   --radius-panel-md: 8px;
-  --radius-panel: 14px;
+  --radius-panel: 20px;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-body), sans-serif;
+}
+
+/* Glassmorphism (brief section 5). Tailwind's bg-*/border-* utilities only
+   cover color — the frosted-glass blur has to be added as plain CSS on the
+   same generated class names so every existing bg-painel-surface(-strong)
+   and bg-painel-accent-surface card gets it for free, with no per-component
+   edits. Kanban cards (StageBoard) use inline hex styles, not these classes,
+   so section 2.2's own color logic is untouched. */
+.bg-painel-surface,
+.bg-painel-surface-strong,
+.bg-painel-accent-surface {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.painel-photo-bg {
+  background-image: linear-gradient(rgba(36, 16, 13, 0.55), rgba(36, 16, 13, 0.55)),
+    var(--painel-bg-image);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
 }

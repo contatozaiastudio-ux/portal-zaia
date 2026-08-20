@@ -173,10 +173,8 @@ export default async function AdminIndexPage({
             <StageBoard stages={stages} clients={active.map((o) => o.client)} />
 
             {atRisk.length > 0 && (
-              <p className="mt-4 rounded-panel-md border-l-2 border-amarelo-deep bg-white/5 px-3 py-2.5 font-body text-fs-xs text-painel-text-muted">
-                <strong className="text-amarelo-deep">
-                  {atRisk.length} cliente(s) ainda em Aberto/Escrita neste mês:
-                </strong>{" "}
+              <p className="bg-painel-accent-surface border-painel-accent-border mt-4 rounded-panel-md border px-3 py-2.5 font-body text-fs-xs text-amarelo-manteiga">
+                <strong>{atRisk.length} cliente(s) ainda em Aberto/Escrita neste mês:</strong>{" "}
                 {atRisk.map((o) => o.client.name).join(", ")} — atenção pro prazo do dia 25.
               </p>
             )}

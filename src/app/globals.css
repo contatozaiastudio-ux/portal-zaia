@@ -20,16 +20,22 @@
      Glassmorphism (brief section 5): full-bleed photo behind everything,
      cards float as frosted glass — see .bg-painel-surface* rules below for
      the backdrop-filter half of the spec Tailwind can't express as a plain
-     color token. Surface tint is dark (not cream) so the cream text stays
-     readable over a busy photo — a light-on-light glass card was the
-     original spec but read poorly in practice. */
+     color token, plus the dark-ink-on-cream override used *inside* cards.
+     Chrome that sits directly on the photo (header, nav, sidebar) keeps
+     --painel-text/-muted as light cream — only descendants of a card get
+     the dark ink swap, since a light card with light text was unreadable. */
   --painel-bg: #24100d;
   --painel-bg-image: url("/backgrounds/flow-bg.jpg");
-  --painel-surface: rgba(36, 16, 13, 0.82);
-  --painel-surface-strong: rgba(36, 16, 13, 0.92);
+  --painel-surface: rgba(243, 239, 230, 0.94);
+  --painel-surface-strong: rgba(243, 239, 230, 0.98);
   --painel-border: rgba(243, 239, 230, 0.22);
   --painel-text: #f5ece6;
   --painel-text-muted: #b99c94;
+
+  /* Dark-ink text pair used only inside cards (see .bg-painel-surface* below) —
+     max contrast against the now-light card fill. */
+  --painel-ink: #350705;
+  --painel-ink-muted: #6b4a44;
 
   /* Urgency/accent glass variant — reserved for the one or two cards that
      need to stand out (e.g. the day-25 deadline warning), not the default. */
@@ -67,6 +73,8 @@
   --color-painel-text-muted: var(--painel-text-muted);
   --color-painel-accent-surface: var(--painel-accent-surface);
   --color-painel-accent-border: var(--painel-accent-border);
+  --color-painel-ink: var(--painel-ink);
+  --color-painel-ink-muted: var(--painel-ink-muted);
 
   /* Closed 8-step type scale from the briefing (section 3) — used only
      inside the Painel, named fs-* so they never collide with Tailwind's
@@ -106,6 +114,47 @@ body {
 .bg-painel-accent-surface {
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+}
+
+/* Re-point --painel-text/-muted to dark ink for anything inside a (now
+   light-cream) card. CSS custom properties cascade to descendants, so every
+   text-painel-text(-muted) element already in these cards picks this up
+   automatically — no component edits needed. border-painel-border also
+   darkens here so card edges stay visible against their own light fill
+   (chrome dividers outside cards are untouched, since they don't carry
+   this class). Accent cards keep the light cream text — that pairing was
+   already high-contrast. */
+.bg-painel-surface,
+.bg-painel-surface-strong {
+  --painel-text: var(--painel-ink);
+  --painel-text-muted: var(--painel-ink-muted);
+  --painel-border: rgba(53, 7, 5, 0.16);
+}
+
+/* Form fields inside cards use bg-white/N (a subtle *lightening* overlay,
+   meant for the old dark card). On the new light card that reads as
+   near-invisible, so redirect those exact generated classes to a subtle
+   *darkening* overlay instead — same descendant-scoping approach as above,
+   no component edits. */
+.bg-painel-surface .bg-white\/5,
+.bg-painel-surface-strong .bg-white\/5 {
+  background-color: rgba(53, 7, 5, 0.05);
+}
+.bg-painel-surface .bg-white\/6,
+.bg-painel-surface-strong .bg-white\/6 {
+  background-color: rgba(53, 7, 5, 0.06);
+}
+.bg-painel-surface .bg-white\/7,
+.bg-painel-surface-strong .bg-white\/7 {
+  background-color: rgba(53, 7, 5, 0.08);
+}
+.bg-painel-surface .bg-white\/8,
+.bg-painel-surface-strong .bg-white\/8 {
+  background-color: rgba(53, 7, 5, 0.09);
+}
+.bg-painel-surface .bg-white\/10,
+.bg-painel-surface-strong .bg-white\/10 {
+  background-color: rgba(53, 7, 5, 0.11);
 }
 
 /* Lets a normal-flow block bleed to the viewport's full width even while

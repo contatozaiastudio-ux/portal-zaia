@@ -46,40 +46,42 @@ export default async function ClientFeedPage({
   const unlinkedScripts = month ? await listUnlinkedApprovedScripts(month.id) : [];
 
   return (
-    <>
-      {/* Fundo sólido bordo só nesta tela — a foto do painel briga
-          visualmente com as artes/mídias sendo avaliadas aqui. */}
-      <div className="bg-bordo fixed inset-0" aria-hidden />
-      <div className="relative flex flex-1 flex-col gap-6 lg:flex-row">
+    // Fundo sólido só nesta tela — a foto do painel briga visualmente com
+    // as artes/mídias sendo avaliadas aqui. Usa o tom escuro geral do painel
+    // (--painel-bg), não --bordo, pra combinar com o resto da interface.
+    // painel-bleed estica isso até a borda da viewport em fluxo normal (sem
+    // fixed/absolute), então nunca fica por cima do header/abas acima.
+    <div className="painel-bleed bg-painel-bg -my-8 px-6 py-8 sm:px-10">
+      <div className="mx-auto flex max-w-6xl flex-1 flex-col gap-6 lg:flex-row">
         <div className="flex flex-1 flex-col gap-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <CategoryCounts posts={posts} dark />
-          <div className="flex flex-wrap items-center gap-3">
-            <CopyLinkButton path={`/${slug}/feed?t=${client.access_token}`} dark />
-            <MonthSelector months={months} current={monthKey} basePath={`/admin/${slug}/feed`} dark />
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <CategoryCounts posts={posts} dark />
+            <div className="flex flex-wrap items-center gap-3">
+              <CopyLinkButton path={`/${slug}/feed?t=${client.access_token}`} dark />
+              <MonthSelector months={months} current={monthKey} basePath={`/admin/${slug}/feed`} dark />
+            </div>
           </div>
+
+          <StrategyEditor
+            slug={slug}
+            monthKey={monthKey}
+            initialObjective={month?.strategy_objective ?? ""}
+            initialPillars={month?.strategy_pillars ?? []}
+          />
+
+          <NewPostForm slug={slug} monthKey={monthKey} scripts={unlinkedScripts} />
+
+          <AdminFeedGrid slug={slug} monthKey={monthKey} posts={posts} />
         </div>
 
-        <StrategyEditor
-          slug={slug}
-          monthKey={monthKey}
-          initialObjective={month?.strategy_objective ?? ""}
-          initialPillars={month?.strategy_pillars ?? []}
-        />
-
-        <NewPostForm slug={slug} monthKey={monthKey} scripts={unlinkedScripts} />
-
-        <AdminFeedGrid slug={slug} monthKey={monthKey} posts={posts} />
-      </div>
-
-      <div className="flex w-full flex-col gap-6 lg:w-80">
-        <MiniCalendar
-          monthKey={monthKey}
-          scheduledDates={posts.flatMap((p) => (p.scheduled_date ? [p.scheduled_date] : []))}
-        />
-        <PendingPanel slug={slug} posts={pendingPosts} />
+        <div className="flex w-full flex-col gap-6 lg:w-80">
+          <MiniCalendar
+            monthKey={monthKey}
+            scheduledDates={posts.flatMap((p) => (p.scheduled_date ? [p.scheduled_date] : []))}
+          />
+          <PendingPanel slug={slug} posts={pendingPosts} />
         </div>
       </div>
-    </>
+    </div>
   );
 }

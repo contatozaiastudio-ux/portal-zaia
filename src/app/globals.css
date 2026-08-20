@@ -108,6 +108,18 @@ body {
   -webkit-backdrop-filter: blur(16px);
 }
 
+/* Lets a normal-flow block bleed to the viewport's full width even while
+   nested inside a centered max-w-* container — no fixed/absolute needed,
+   so it can never stack over the header/nav above it (see Feed page). */
+.painel-bleed {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+}
+
 .painel-photo-bg {
   background-image: linear-gradient(rgba(36, 16, 13, 0.55), rgba(36, 16, 13, 0.55)),
     var(--painel-bg-image);

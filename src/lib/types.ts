@@ -11,6 +11,27 @@ export interface Client {
   slug: string;
   access_token: string;
   active: boolean;
+  client_stage_id: string;
+  client_stage_updated_at: string;
+}
+
+// Agency-wide pipeline stage — tracks where a client account sits in the
+// ~25-day content cycle (Planejamento → ... → Meta batida). Distinct from
+// Month.planning_stage, which tracks a single month's copy/design progress.
+export interface ClientStage {
+  id: string;
+  name: string;
+  color_bg: string;
+  color_text: string;
+  position: number;
+}
+
+export interface ClientLinks {
+  client_id: string;
+  notion_url: string | null;
+  drive_url: string | null;
+  canva_feed_url: string | null;
+  canva_stories_url: string | null;
 }
 
 export interface ClientContext {

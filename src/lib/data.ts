@@ -3,6 +3,8 @@ import { getSupabase } from "./supabase";
 import type {
   Client,
   ClientContext,
+  ClientLinks,
+  ClientStage,
   CommentHistoryEntry,
   Demand,
   DemandOrigin,
@@ -123,6 +125,72 @@ export async function setClientActive(clientId: string, active: boolean): Promis
   if (error) throw error;
 }
 
+export async function listClientStages(): Promise<ClientStage[]> {
+  const { data, error } = await getSupabase()
+    .from("client_stages")
+    .select("*")
+    .order("position", { ascending: true });
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function updateClientStage(clientId: string, stageId: string): Promise<void> {
+  const { error } = await getSupabase()
+    .from("clients")
+    .update({ client_stage_id: stageId, client_stage_updated_at: new Date().toISOString() })
+    .eq("id", clientId);
+  if (error) throw error;
+}
+
+export async function getClientLinks(clientId: string): Promise<ClientLinks | null> {
+  const { data, error } = await getSupabase()
+    .from("client_links")
+    .select("*")
+    .eq("client_id", clientId)
+    .maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
+export async function upsertClientLinks(
+  clientId: string,
+  input: Partial<Omit<ClientLinks, "client_id">>
+): Promise<void> {
+  const { error } = await getSupabase()
+    .from("client_links")
+    .upsert({ client_id: clientId, ...input }, { onConflict: "client_id" });
+  if (error) throw error;
+}
+
+export interface CycleInfo {
+  daysLeft: number;
+  totalDays: number;
+  elapsedDays: number;
+  deadlineLabel: string;
+}
+
+// The agency's content cycle always closes on day 25 — runs from the day
+// after the previous closing through day 25 of the current (or next, if
+// we're past the 25th) month. Computed live, nothing stored in the DB.
+export function getCycleInfo(now: Date = new Date()): CycleInfo {
+  let cycleEnd = new Date(now.getFullYear(), now.getMonth(), 25);
+  if (now.getDate() > 25) cycleEnd = new Date(now.getFullYear(), now.getMonth() + 1, 25);
+  const prevClosing = new Date(cycleEnd.getFullYear(), cycleEnd.getMonth() - 1, 25);
+  const cycleStart = new Date(
+    prevClosing.getFullYear(),
+    prevClosing.getMonth(),
+    prevClosing.getDate() + 1
+  );
+
+  const dayMs = 1000 * 60 * 60 * 24;
+  const totalDays = Math.round((cycleEnd.getTime() - cycleStart.getTime()) / dayMs) + 1;
+  const daysLeft = Math.ceil((cycleEnd.getTime() - now.getTime()) / dayMs);
+  const elapsedDays = totalDays - daysLeft;
+  const deadlineLabel = cycleEnd.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+
+  return { daysLeft, totalDays, elapsedDays, deadlineLabel };
+}
+
 export interface AgencyClientSummary {
   client: Client;
   hasContext: boolean;
@@ -207,9 +275,16 @@ export async function createClientWithContext(input: {
     slug = `${baseSlug}-${suffix}`;
   }
 
+  const { data: firstStage, error: stageError } = await supabase
+    .from("client_stages")
+    .select("id")
+    .eq("position", 1)
+    .single();
+  if (stageError) throw stageError;
+
   const { data: client, error: clientError } = await supabase
     .from("clients")
-    .insert({ name: input.name, slug })
+    .insert({ name: input.name, slug, client_stage_id: firstStage.id })
     .select("*")
     .single();
   if (clientError) throw clientError;

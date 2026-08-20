@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { isSupabaseConfigured } from "@/lib/supabase";
-import { getClientBySlug } from "@/lib/data";
+import { getClientBySlug, getClientLinks } from "@/lib/data";
 import { LogoutButton } from "@/components/LogoutButton";
 import { SetupNotice } from "@/components/SetupNotice";
+import { ClientQuickLinks } from "@/components/ClientQuickLinks";
 import { ClientNavTabs } from "./ClientNavTabs";
 
 export default async function ClientPortalLayout({
@@ -21,9 +22,11 @@ export default async function ClientPortalLayout({
   const client = await getClientBySlug(slug);
   if (!client) notFound();
 
+  const links = await getClientLinks(client.id);
+
   return (
     <div className="flex min-h-full flex-1 flex-col">
-      <header className="flex items-center justify-between border-b border-painel-border px-6 py-4">
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-painel-border px-6 py-4">
         <div className="flex items-center gap-3">
           <Link
             href="/admin"
@@ -36,7 +39,10 @@ export default async function ClientPortalLayout({
             {client.name}
           </p>
         </div>
-        <LogoutButton className="font-body text-fs-sm text-painel-text-muted hover:text-painel-text" />
+        <div className="flex flex-wrap items-center gap-3">
+          <ClientQuickLinks links={links} />
+          <LogoutButton className="font-body text-fs-sm text-painel-text-muted hover:text-painel-text" />
+        </div>
       </header>
       <ClientNavTabs slug={slug} />
       <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-8">{children}</main>

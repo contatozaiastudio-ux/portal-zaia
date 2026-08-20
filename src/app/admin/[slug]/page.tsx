@@ -5,6 +5,7 @@ import {
   currentMonthKey,
   getClientBySlug,
   getClientContext,
+  getClientLinks,
   getMonth,
   getPostsForMonth,
   getProjectObjective,
@@ -15,6 +16,7 @@ import { CopyLinkButton } from "@/components/CopyLinkButton";
 import { SetupNotice } from "@/components/SetupNotice";
 import { ProjectObjectiveEditor } from "./ProjectObjectiveEditor";
 import { ClientContextEditor } from "./ClientContextEditor";
+import { ClientLinksEditor } from "./ClientLinksEditor";
 import { ScopeItemsEditor } from "./ScopeItemsEditor";
 
 const NAV_CARDS = [
@@ -38,11 +40,12 @@ export default async function ClientHomePage({
   if (!client) notFound();
 
   const monthKey = currentMonthKey();
-  const [month, context, objective, scopeItems] = await Promise.all([
+  const [month, context, objective, scopeItems, links] = await Promise.all([
     getMonth(client.id, monthKey),
     getClientContext(client.id),
     getProjectObjective(client.id),
     listScopeItems(client.id),
+    getClientLinks(client.id),
   ]);
   const posts = month ? await getPostsForMonth(month.id) : [];
 
@@ -63,6 +66,14 @@ export default async function ClientHomePage({
       />
 
       <ScopeItemsEditor slug={slug} initialItems={scopeItems} />
+
+      <ClientLinksEditor
+        slug={slug}
+        initialNotion={links?.notion_url ?? ""}
+        initialDrive={links?.drive_url ?? ""}
+        initialCanvaFeed={links?.canva_feed_url ?? ""}
+        initialCanvaStories={links?.canva_stories_url ?? ""}
+      />
 
       <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
         {NAV_CARDS.map((card) => (

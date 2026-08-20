@@ -38,7 +38,7 @@ export default function LoginPage() {
       >
         <div>
           <h1 className="font-display text-fs-title font-semibold text-painel-text">
-            ZAIA Studio
+            ZAIA FLOW
           </h1>
           <p className="font-body text-fs-sm text-painel-text-muted">Painel da equipe</p>
         </div>

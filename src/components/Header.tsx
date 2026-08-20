@@ -14,7 +14,7 @@ export function Header({
           <Logo className="h-8 w-8 shrink-0" />
           <div className="flex flex-col leading-tight">
             <span className="font-display text-sm font-semibold tracking-wide">
-              ZAIA STUDIO
+              ZAIA FLOW
             </span>
             <span className="font-body text-xs text-azul-deep">{clientName}</span>
           </div>

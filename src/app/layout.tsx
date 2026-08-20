@@ -15,8 +15,8 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Portal de Aprovação — ZAIA Studio",
-  description: "Portal de aprovação de conteúdo mensal ZAIA Studio",
+  title: "ZAIA FLOW",
+  description: "ZAIA FLOW — portal de aprovação de conteúdo mensal da ZAIA Studio",
 };
 
 export default function RootLayout({

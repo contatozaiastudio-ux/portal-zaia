@@ -105,7 +105,7 @@ export function ResetPasswordForm() {
   return (
     <div className="flex w-full max-w-sm flex-col gap-4 rounded-panel border border-painel-border bg-painel-surface p-6">
       <div>
-        <h1 className="font-display text-fs-title font-semibold text-painel-text">ZAIA Studio</h1>
+        <h1 className="font-display text-fs-title font-semibold text-painel-text">ZAIA FLOW</h1>
         <p className="font-body text-fs-sm text-painel-text-muted">Definir sua senha</p>
       </div>
 

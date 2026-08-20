@@ -46,8 +46,12 @@ export default async function ClientFeedPage({
   const unlinkedScripts = month ? await listUnlinkedApprovedScripts(month.id) : [];
 
   return (
-    <div className="flex flex-1 flex-col gap-6 lg:flex-row">
-      <div className="flex flex-1 flex-col gap-6">
+    <>
+      {/* Fundo sólido bordo só nesta tela — a foto do painel briga
+          visualmente com as artes/mídias sendo avaliadas aqui. */}
+      <div className="bg-bordo fixed inset-0" aria-hidden />
+      <div className="relative flex flex-1 flex-col gap-6 lg:flex-row">
+        <div className="flex flex-1 flex-col gap-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <CategoryCounts posts={posts} dark />
           <div className="flex flex-wrap items-center gap-3">
@@ -74,7 +78,8 @@ export default async function ClientFeedPage({
           scheduledDates={posts.flatMap((p) => (p.scheduled_date ? [p.scheduled_date] : []))}
         />
         <PendingPanel slug={slug} posts={pendingPosts} />
+        </div>
       </div>
-    </div>
+    </>
   );
 }

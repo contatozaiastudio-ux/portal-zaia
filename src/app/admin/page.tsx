@@ -6,12 +6,12 @@ import {
   listClientStages,
   listOpenDemandsAllClients,
 } from "@/lib/data";
-import { DEMAND_ORIGIN_LABEL } from "@/lib/types";
 import { SetupNotice } from "@/components/SetupNotice";
 import { LogoutButton } from "@/components/LogoutButton";
 import { StageRing } from "@/components/StageRing";
 import { StageBoard } from "@/components/StageBoard";
 import { ReactivateClientButton } from "./ReactivateClientButton";
+import { AgencyDemandsPanel } from "./AgencyDemandsPanel";
 
 // A client counts as "planejamento pronto" once it's reached Design or later
 // — Aprovação is still a waiting stage, not a finished one.
@@ -180,38 +180,7 @@ export default async function AdminIndexPage({
             )}
           </section>
 
-          <section className="flex flex-col gap-2">
-            <h2 className="font-display text-fs-md font-semibold text-painel-text">
-              Demandas abertas — todos os clientes
-            </h2>
-            {demands.length === 0 ? (
-              <p className="font-body text-fs-sm text-painel-text-muted">
-                Nenhuma demanda em aberto.
-              </p>
-            ) : (
-              <ul className="flex flex-col gap-2">
-                {demands.map((d) => (
-                  <li
-                    key={d.id}
-                    className="rounded-panel border border-painel-border bg-painel-surface p-3.5"
-                  >
-                    <p className="font-body text-fs-md text-painel-text">{d.description}</p>
-                    <div className="mt-2 flex flex-wrap gap-1.5">
-                      <span className="rounded-panel-sm bg-white/8 px-2 py-1 font-body text-fs-2xs font-semibold text-amarelo">
-                        {d.client_name}
-                      </span>
-                      <span className="rounded-panel-sm bg-white/8 px-2 py-1 font-body text-fs-2xs font-semibold text-painel-text-muted">
-                        {DEMAND_ORIGIN_LABEL[d.origin]}
-                      </span>
-                      <span className="rounded-panel-sm bg-white/8 px-2 py-1 font-body text-fs-2xs font-semibold text-painel-text-muted">
-                        {new Date(d.created_at).toLocaleDateString("pt-BR")}
-                      </span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
+          <AgencyDemandsPanel demands={demands} clients={active.map((o) => o.client)} />
         </div>
       </main>
     </>

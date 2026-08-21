@@ -595,18 +595,18 @@ export async function listDemandsForClient(clientId: string): Promise<Demand[]> 
 // All open demands (status != concluida) across active clients, for the
 // agency-level consolidated view. Joins in the client name for display.
 export async function listOpenDemandsAllClients(): Promise<
-  Array<Demand & { client_name: string }>
+  Array<Demand & { client_name: string; client_slug: string }>
 > {
   const { data, error } = await getSupabase()
     .from("demands")
-    .select("*, clients!inner(name, active)")
+    .select("*, clients!inner(name, slug, active)")
     .eq("clients.active", true)
     .neq("status", "concluida")
     .order("created_at", { ascending: false });
   if (error) throw error;
   return (data ?? []).map((row) => {
-    const { clients, ...demand } = row as Demand & { clients: { name: string } };
-    return { ...demand, client_name: clients.name };
+    const { clients, ...demand } = row as Demand & { clients: { name: string; slug: string } };
+    return { ...demand, client_name: clients.name, client_slug: clients.slug };
   });
 }
 

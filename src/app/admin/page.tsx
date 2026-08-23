@@ -63,7 +63,7 @@ export default async function AdminIndexPage({
         <LogoutButton className="font-body text-fs-sm text-painel-text-muted hover:text-painel-text" />
       </header>
 
-      <main className="mx-auto grid w-full max-w-6xl flex-1 grid-cols-1 gap-8 px-6 py-8 md:grid-cols-[190px_1fr_280px]">
+      <main className="mx-auto grid w-full max-w-[1440px] flex-1 grid-cols-1 gap-8 px-6 py-8 md:grid-cols-[190px_1fr_280px]">
         <aside className="flex flex-col gap-1 md:border-r md:border-painel-border md:pr-4">
           <span className="font-body text-fs-xs font-bold uppercase tracking-widest text-painel-text-muted">
             Clientes

@@ -34,7 +34,7 @@ function ClientCard({
       {...listeners}
       {...attributes}
       onClick={() => !isDragging && onOpen(client.slug)}
-      className={`cursor-grab touch-none rounded-panel-md px-2 py-2 text-center font-body text-[10.5px] font-medium shadow-sm active:cursor-grabbing sm:text-fs-xs ${
+      className={`flex min-h-[46px] w-full cursor-grab touch-none items-center justify-center rounded-panel-md px-2 py-1.5 text-center font-body text-fs-2xs font-medium leading-tight shadow-sm active:cursor-grabbing sm:text-fs-xs ${
         isDragging ? "z-10 opacity-50" : ""
       }`}
       style={{
@@ -44,7 +44,7 @@ function ClientCard({
         border: isDone ? "none" : `1px solid ${stage.color_bg}`,
       }}
     >
-      {client.name}
+      <span className="line-clamp-2 break-words">{client.name}</span>
     </div>
   );
 }
@@ -56,7 +56,7 @@ function StageColumn({ stage, clients }: { stage: ClientStage; clients: Client[]
   return (
     <div className="flex flex-col">
       <div
-        className="rounded-t-panel-sm px-1.5 py-2 text-center font-body text-[9.5px] font-semibold leading-tight sm:text-fs-2xs"
+        className="flex min-h-[36px] items-center justify-center rounded-t-panel-sm px-1.5 py-2 text-center font-body text-fs-2xs font-semibold leading-tight break-words"
         style={{ backgroundColor: stage.color_bg, color: stage.color_text }}
       >
         {stage.name}

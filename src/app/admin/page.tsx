@@ -3,6 +3,7 @@ import { isSupabaseConfigured } from "@/lib/supabase";
 import {
   getAgencyOverview,
   getCycleInfo,
+  listAgencyEvents,
   listClientStages,
   listOpenDemandsAllClients,
 } from "@/lib/data";
@@ -10,6 +11,7 @@ import { SetupNotice } from "@/components/SetupNotice";
 import { LogoutButton } from "@/components/LogoutButton";
 import { StageRing } from "@/components/StageRing";
 import { StageBoard } from "@/components/StageBoard";
+import { AgencyCalendar } from "@/components/AgencyCalendar";
 import { ReactivateClientButton } from "./ReactivateClientButton";
 import { AgencyDemandsPanel } from "./AgencyDemandsPanel";
 
@@ -29,10 +31,11 @@ export default async function AdminIndexPage({
   const { inactive } = await searchParams;
   const showInactive = inactive === "1";
 
-  const [overview, demands, stages] = await Promise.all([
+  const [overview, demands, stages, events] = await Promise.all([
     getAgencyOverview(true),
     listOpenDemandsAllClients(),
     listClientStages(),
+    listAgencyEvents(),
   ]);
 
   const active = overview.filter((o) => o.client.active);
@@ -60,7 +63,7 @@ export default async function AdminIndexPage({
         <LogoutButton className="font-body text-fs-sm text-painel-text-muted hover:text-painel-text" />
       </header>
 
-      <main className="mx-auto grid w-full max-w-6xl flex-1 grid-cols-1 gap-8 px-6 py-8 md:grid-cols-[190px_1fr]">
+      <main className="mx-auto grid w-full max-w-6xl flex-1 grid-cols-1 gap-8 px-6 py-8 md:grid-cols-[190px_1fr_280px]">
         <aside className="flex flex-col gap-1 md:border-r md:border-painel-border md:pr-4">
           <span className="font-body text-fs-xs font-bold uppercase tracking-widest text-painel-text-muted">
             Clientes
@@ -182,6 +185,10 @@ export default async function AdminIndexPage({
 
           <AgencyDemandsPanel demands={demands} clients={active.map((o) => o.client)} />
         </div>
+
+        <aside className="flex flex-col gap-6">
+          <AgencyCalendar events={events} />
+        </aside>
       </main>
     </>
   );

@@ -83,6 +83,16 @@ export interface Demand {
   created_at: string;
 }
 
+// Team-wide calendar shown on the main admin dashboard — shoots, recordings,
+// meetings — not tied to a single client or content month.
+export interface AgencyEvent {
+  id: string;
+  title: string;
+  event_date: string; // "2026-09-03"
+  notes: string;
+  created_at: string;
+}
+
 export interface Month {
   id: string;
   client_id: string;

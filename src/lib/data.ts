@@ -1,6 +1,7 @@
 import "server-only";
 import { getSupabase } from "./supabase";
 import type {
+  AgencyEvent,
   Client,
   ClientContext,
   ClientLinks,
@@ -635,6 +636,37 @@ export async function updateDemandStatus(
     .update({ status })
     .eq("id", demandId)
     .eq("client_id", clientId);
+  if (error) throw error;
+}
+
+// Team-wide calendar on the main dashboard (see AgencyCalendar) — shoots,
+// recordings, meetings. Not scoped to a client or a single content month,
+// so unlike everything else in this file it has no clientId/monthId guard.
+export async function listAgencyEvents(): Promise<AgencyEvent[]> {
+  const { data, error } = await getSupabase()
+    .from("agency_events")
+    .select("*")
+    .order("event_date", { ascending: true });
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function createAgencyEvent(input: {
+  title: string;
+  event_date: string;
+  notes: string;
+}): Promise<AgencyEvent> {
+  const { data, error } = await getSupabase()
+    .from("agency_events")
+    .insert(input)
+    .select("*")
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteAgencyEvent(eventId: string): Promise<void> {
+  const { error } = await getSupabase().from("agency_events").delete().eq("id", eventId);
   if (error) throw error;
 }
 

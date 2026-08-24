@@ -14,6 +14,7 @@ export interface Client {
   client_stage_id: string;
   client_stage_updated_at: string;
   cover_path: string | null;
+  cover_position_y: number;
 }
 
 // Agency-wide pipeline stage — tracks where a client account sits in the

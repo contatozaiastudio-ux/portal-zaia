@@ -30,6 +30,7 @@ export default async function ClientPortalLayout({
       <ClientCoverImage
         slug={slug}
         initialUrl={client.cover_path ? mediaPublicUrl(client.cover_path) : null}
+        initialPositionY={client.cover_position_y ?? 50}
       />
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-painel-border px-6 py-4">
         <div className="flex items-center gap-3">

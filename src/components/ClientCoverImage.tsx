@@ -7,14 +7,20 @@ import { getSupabaseBrowser, isBrowserUploadConfigured } from "@/lib/supabase-br
 export function ClientCoverImage({
   slug,
   initialUrl,
+  initialPositionY,
 }: {
   slug: string;
   initialUrl: string | null;
+  initialPositionY: number;
 }) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [coverUrl, setCoverUrl] = useState(initialUrl);
+  const [positionY, setPositionY] = useState(initialPositionY);
+  const [draftPositionY, setDraftPositionY] = useState(initialPositionY);
+  const [repositioning, setRepositioning] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [savingPosition, setSavingPosition] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function handleFile(file: File | null) {
@@ -48,6 +54,9 @@ export function ClientCoverImage({
 
       const publicUrlRes = getSupabaseBrowser().storage.from("media").getPublicUrl(path);
       setCoverUrl(publicUrlRes.data.publicUrl);
+      // setClientCover resets the position server-side for a fresh photo.
+      setPositionY(50);
+      setDraftPositionY(50);
       router.refresh();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erro no upload da capa");
@@ -59,8 +68,39 @@ export function ClientCoverImage({
 
   async function removeCover() {
     setCoverUrl(null);
+    setRepositioning(false);
     await fetch(`/api/admin/${slug}/cover`, { method: "DELETE" });
     router.refresh();
+  }
+
+  function startRepositioning() {
+    setDraftPositionY(positionY);
+    setRepositioning(true);
+  }
+
+  async function savePosition() {
+    setSavingPosition(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/admin/${slug}/cover/position`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ positionY: draftPositionY }),
+      });
+      if (!res.ok) throw new Error("Erro ao salvar posição");
+      setPositionY(draftPositionY);
+      setRepositioning(false);
+      router.refresh();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Erro inesperado");
+    } finally {
+      setSavingPosition(false);
+    }
+  }
+
+  function cancelRepositioning() {
+    setDraftPositionY(positionY);
+    setRepositioning(false);
   }
 
   if (!coverUrl) {
@@ -85,26 +125,71 @@ export function ClientCoverImage({
   return (
     <div className="relative h-40 w-full sm:h-56">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={coverUrl} alt="" className="h-full w-full object-cover" />
-      <div className="absolute bottom-3 right-3 flex gap-2">
-        <label className="cursor-pointer rounded-panel-md bg-black/50 px-3 py-1.5 font-body text-fs-xs font-semibold text-branco backdrop-blur-sm hover:bg-black/65">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
-            disabled={uploading}
-          />
-          {uploading ? "Enviando..." : "Alterar capa"}
-        </label>
-        <button
-          onClick={removeCover}
-          className="rounded-panel-md bg-black/50 px-3 py-1.5 font-body text-fs-xs font-semibold text-branco backdrop-blur-sm hover:bg-black/65"
-        >
-          Remover
-        </button>
-      </div>
+      <img
+        src={coverUrl}
+        alt=""
+        className="h-full w-full object-cover"
+        style={{ objectPosition: `center ${repositioning ? draftPositionY : positionY}%` }}
+      />
+
+      {repositioning ? (
+        <div className="absolute inset-x-0 bottom-0 flex flex-col gap-2 bg-black/60 px-4 py-3 backdrop-blur-sm">
+          <div className="flex items-center gap-3">
+            <span className="font-body text-fs-xs font-semibold text-branco">Topo</span>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={draftPositionY}
+              onChange={(e) => setDraftPositionY(Number(e.target.value))}
+              className="flex-1 accent-azul"
+            />
+            <span className="font-body text-fs-xs font-semibold text-branco">Base</span>
+          </div>
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={cancelRepositioning}
+              className="rounded-panel-md px-3 py-1.5 font-body text-fs-xs font-semibold text-branco/80 hover:text-branco"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={savePosition}
+              disabled={savingPosition}
+              className="rounded-panel-md bg-azul px-3 py-1.5 font-body text-fs-xs font-semibold text-marrom-escuro disabled:opacity-50"
+            >
+              {savingPosition ? "Salvando..." : "Salvar posição"}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="absolute bottom-3 right-3 flex gap-2">
+          <button
+            onClick={startRepositioning}
+            className="rounded-panel-md bg-black/50 px-3 py-1.5 font-body text-fs-xs font-semibold text-branco backdrop-blur-sm hover:bg-black/65"
+          >
+            Reposicionar
+          </button>
+          <label className="cursor-pointer rounded-panel-md bg-black/50 px-3 py-1.5 font-body text-fs-xs font-semibold text-branco backdrop-blur-sm hover:bg-black/65">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
+              disabled={uploading}
+            />
+            {uploading ? "Enviando..." : "Alterar capa"}
+          </label>
+          <button
+            onClick={removeCover}
+            className="rounded-panel-md bg-black/50 px-3 py-1.5 font-body text-fs-xs font-semibold text-branco backdrop-blur-sm hover:bg-black/65"
+          >
+            Remover
+          </button>
+        </div>
+      )}
+
       {error && (
         <p className="absolute bottom-3 left-3 rounded-panel-md bg-black/50 px-3 py-1.5 font-body text-fs-xs text-amarelo backdrop-blur-sm">
           {error}

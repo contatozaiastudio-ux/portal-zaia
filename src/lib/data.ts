@@ -151,15 +151,26 @@ export async function setClientCover(clientId: string, storagePath: string): Pro
     .single();
   if (fetchError) throw fetchError;
 
+  // Reset to centered — a new photo has no relationship to whatever offset
+  // was dialed in for the old one.
   const { error } = await getSupabase()
     .from("clients")
-    .update({ cover_path: storagePath })
+    .update({ cover_path: storagePath, cover_position_y: 50 })
     .eq("id", clientId);
   if (error) throw error;
 
   if (existing?.cover_path) {
     await getSupabase().storage.from(MEDIA_BUCKET).remove([existing.cover_path]);
   }
+}
+
+export async function setClientCoverPosition(clientId: string, positionY: number): Promise<void> {
+  const clamped = Math.max(0, Math.min(100, Math.round(positionY)));
+  const { error } = await getSupabase()
+    .from("clients")
+    .update({ cover_position_y: clamped })
+    .eq("id", clientId);
+  if (error) throw error;
 }
 
 export async function clearClientCover(clientId: string): Promise<void> {

@@ -2,12 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import {
-  currentMonthKey,
   getClientBySlug,
   getClientContext,
   getClientLinks,
-  getMonth,
   getProjectObjective,
+  listClientStages,
   listScopeItems,
 } from "@/lib/data";
 import { SetupNotice } from "@/components/SetupNotice";
@@ -16,7 +15,7 @@ import { BrandPositioningEditor } from "./BrandPositioningEditor";
 import { ClientContextEditor } from "./ClientContextEditor";
 import { ClientLinksEditor } from "./ClientLinksEditor";
 import { ScopeItemsEditor } from "./ScopeItemsEditor";
-import { StageTracker } from "./etapa/StageTracker";
+import { ClientStageTracker } from "./ClientStageTracker";
 
 const NAV_CARDS = [
   { href: "feed", title: "Feed de aprovação", sub: "Foco do mês, grid e status de aprovação" },
@@ -38,9 +37,8 @@ export default async function ClientHomePage({
   const client = await getClientBySlug(slug);
   if (!client) notFound();
 
-  const monthKey = currentMonthKey();
-  const [month, context, objective, scopeItems, links] = await Promise.all([
-    getMonth(client.id, monthKey),
+  const [stages, context, objective, scopeItems, links] = await Promise.all([
+    listClientStages(),
     getClientContext(client.id),
     getProjectObjective(client.id),
     listScopeItems(client.id),
@@ -55,10 +53,15 @@ export default async function ClientHomePage({
             Etapa do planejamento
           </span>
           <p className="mt-1.5 font-body text-fs-sm text-painel-text-muted">
-            Aberto → Escrita → Design → Pronto p/ aprovação — clique numa etapa pra atualizar.
+            Mesma etapa do quadro no painel principal — clique pra atualizar, atualiza nos dois
+            lugares.
           </p>
         </div>
-        <StageTracker slug={slug} monthKey={monthKey} initialStage={month?.planning_stage ?? "aberto"} />
+        <ClientStageTracker
+          clientId={client.id}
+          stages={stages}
+          currentStageId={client.client_stage_id}
+        />
       </section>
 
       <ProjectObjectiveEditor slug={slug} initialText={objective?.text ?? ""} />

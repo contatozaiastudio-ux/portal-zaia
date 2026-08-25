@@ -19,6 +19,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import type { Post } from "@/lib/types";
 import { PostCardContent } from "@/components/PostCard";
+import { downloadAllMedia } from "@/lib/media-link";
 
 function SortablePostCard({
   post,
@@ -30,6 +31,8 @@ function SortablePostCard({
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: post.id,
   });
+  const canDownload =
+    (post.status === "aprovado" || post.status === "ajuste_feito") && post.media.length > 0;
 
   return (
     <div
@@ -38,9 +41,21 @@ function SortablePostCard({
       {...attributes}
       {...listeners}
       onClick={() => !isDragging && onOpen(post.id)}
-      className={`cursor-grab touch-none active:cursor-grabbing ${isDragging ? "opacity-50" : ""}`}
+      className={`relative cursor-grab touch-none active:cursor-grabbing ${isDragging ? "opacity-50" : ""}`}
     >
       <PostCardContent post={post} />
+      {canDownload && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            downloadAllMedia(post.media);
+          }}
+          title="Baixar mídia aprovada"
+          className="absolute right-2 top-2 rounded-full bg-marrom-escuro/80 px-2 py-1 text-xs text-branco hover:bg-marrom-escuro"
+        >
+          ⬇
+        </button>
+      )}
     </div>
   );
 }

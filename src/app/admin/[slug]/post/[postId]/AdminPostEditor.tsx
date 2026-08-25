@@ -20,16 +20,18 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import type { Post, PostMediaItem, PostType } from "@/lib/types";
 import { getSupabaseBrowser, isBrowserUploadConfigured } from "@/lib/supabase-browser";
-import { driveEmbedUrl } from "@/lib/media-link";
+import { driveEmbedUrl, downloadUrl, mediaFileName, downloadAllMedia } from "@/lib/media-link";
 import { StatusBadge } from "@/components/StatusBadge";
 
 const MAX_UPLOAD_MB = Number(process.env.NEXT_PUBLIC_MAX_UPLOAD_MB ?? 200);
 
 function SortableThumb({
   media,
+  index,
   onDelete,
 }: {
   media: PostMediaItem;
+  index: number;
   onDelete: (id: string) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -56,6 +58,15 @@ function SortableThumb({
       >
         ×
       </button>
+      <a
+        href={downloadUrl(media.url, mediaFileName(media.storage_path, index))}
+        download={mediaFileName(media.storage_path, index)}
+        onClick={(e) => e.stopPropagation()}
+        className="absolute bottom-1 right-1 rounded-full bg-marrom-escuro/80 px-1.5 text-xs text-branco"
+        title="Baixar"
+      >
+        ⬇
+      </a>
     </div>
   );
 }
@@ -290,7 +301,17 @@ export function AdminPostEditor({
       )}
 
       <section className="flex flex-col gap-3 rounded-panel border border-painel-border bg-painel-surface p-4">
-        <h2 className="font-display text-fs-sm font-semibold text-painel-text">Mídia</h2>
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="font-display text-fs-sm font-semibold text-painel-text">Mídia</h2>
+          {media.length > 0 && (
+            <button
+              onClick={() => downloadAllMedia(media)}
+              className="rounded-panel-sm border border-azul px-2.5 py-1 font-body text-fs-2xs font-semibold text-azul hover:bg-azul hover:text-marrom-escuro"
+            >
+              ⬇ Baixar {media.length > 1 ? "tudo" : ""}
+            </button>
+          )}
+        </div>
 
         <DndContext
           id="post-media-reorder"
@@ -300,8 +321,8 @@ export function AdminPostEditor({
         >
           <SortableContext items={media.map((m) => m.id)} strategy={horizontalListSortingStrategy}>
             <div className="flex flex-wrap gap-2">
-              {media.map((m) => (
-                <SortableThumb key={m.id} media={m} onDelete={deleteMedia} />
+              {media.map((m, i) => (
+                <SortableThumb key={m.id} media={m} index={i} onDelete={deleteMedia} />
               ))}
             </div>
           </SortableContext>

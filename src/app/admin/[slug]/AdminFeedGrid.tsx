@@ -19,14 +19,15 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import type { Post } from "@/lib/types";
 import { PostCardContent } from "@/components/PostCard";
-import { downloadAllMedia } from "@/lib/media-link";
 
 function SortablePostCard({
   post,
   onOpen,
+  onDownload,
 }: {
   post: Post;
   onOpen: (id: string) => void;
+  onDownload: (id: string) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: post.id,
@@ -48,9 +49,9 @@ function SortablePostCard({
         <button
           onClick={(e) => {
             e.stopPropagation();
-            downloadAllMedia(post.media);
+            onDownload(post.id);
           }}
-          title="Baixar mídia aprovada"
+          title="Abrir mídia aprovada — no celular, segure a imagem pra salvar na galeria"
           className="absolute right-2 top-2 rounded-full bg-marrom-escuro/80 px-2 py-1 text-xs text-branco hover:bg-marrom-escuro"
         >
           ⬇
@@ -110,6 +111,7 @@ export function AdminFeedGrid({
               key={post.id}
               post={post}
               onOpen={(id) => router.push(`/admin/${slug}/post/${id}?m=${monthKey}`)}
+              onDownload={(id) => router.push(`/admin/${slug}/post/${id}/gallery?m=${monthKey}`)}
             />
           ))}
         </div>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Script } from "@/lib/types";
+import { StatusBadge } from "@/components/StatusBadge";
 
 export function AdminScriptEditor({ slug, script }: { slug: string; script: Script }) {
   const router = useRouter();
@@ -11,6 +12,28 @@ export function AdminScriptEditor({ slug, script }: { slug: string; script: Scri
   const [content, setContent] = useState(script.content);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [resolving, setResolving] = useState(false);
+
+  async function markAdjustmentDone() {
+    setResolving(true);
+    setSaveError(null);
+    try {
+      const res = await fetch(`/api/admin/${slug}/scripts/${script.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "ajuste_feito" }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error ?? "Erro ao marcar ajuste como feito");
+      }
+      router.refresh();
+    } catch (e) {
+      setSaveError(e instanceof Error ? e.message : "Erro inesperado");
+    } finally {
+      setResolving(false);
+    }
+  }
 
   async function save() {
     setSaving(true);
@@ -49,6 +72,32 @@ export function AdminScriptEditor({ slug, script }: { slug: string; script: Scri
       >
         ← Voltar para roteiros
       </Link>
+
+      {script.status === "ajustar" && (
+        <section className="flex flex-col gap-3 rounded-panel border border-bordo/40 bg-bordo/10 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <StatusBadge status={script.status} />
+              <span className="font-body text-fs-sm text-painel-text">
+                Aguardando ajuste pedido pelo cliente
+              </span>
+            </div>
+            <button
+              onClick={markAdjustmentDone}
+              disabled={resolving}
+              className="rounded-panel-md bg-rosa px-4 py-2 font-display text-fs-sm font-semibold text-branco disabled:opacity-50"
+            >
+              {resolving ? "Marcando..." : "✓ Marcar ajuste como feito"}
+            </button>
+          </div>
+          {script.comment_history[0]?.comment && (
+            <p className="font-body text-fs-sm text-painel-text-muted">
+              “{script.comment_history[0].comment}”
+            </p>
+          )}
+          {saveError && <p className="font-body text-fs-xs text-bordo">{saveError}</p>}
+        </section>
+      )}
 
       <section className="flex flex-col gap-3 rounded-panel border border-painel-border bg-painel-surface p-4">
         <h2 className="font-display text-fs-sm font-semibold text-painel-text">Detalhes</h2>

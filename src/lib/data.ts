@@ -1,5 +1,6 @@
 import "server-only";
 import { getSupabase } from "./supabase";
+import { cropVideoToFeedRatio } from "./video-crop";
 import type {
   AgencyEvent,
   Client,
@@ -950,6 +951,51 @@ export async function addMediaToPost(
     storage_path: data.storage_path,
     position: data.position,
     url: mediaPublicUrl(data.storage_path),
+  };
+}
+
+// Reels-shaped video dropped into a carrossel — downloads the raw upload,
+// runs it through ffmpeg (see video-crop.ts) to center-crop it to the
+// carousel's 4:5 ratio, re-uploads the result, and swaps the media row over
+// to it so the post always points at a feed-ready file.
+export async function cropPostVideoMedia(mediaId: string): Promise<PostMediaItem> {
+  const supabase = getSupabase();
+  const { data: media, error: fetchError } = await supabase
+    .from("post_media")
+    .select("*")
+    .eq("id", mediaId)
+    .single();
+  if (fetchError) throw fetchError;
+
+  const { data: fileData, error: downloadError } = await supabase.storage
+    .from(MEDIA_BUCKET)
+    .download(media.storage_path);
+  if (downloadError) throw downloadError;
+
+  const inputBuffer = Buffer.from(await fileData.arrayBuffer());
+  const ext = media.storage_path.split(".").pop() || "mp4";
+  const croppedBuffer = await cropVideoToFeedRatio(inputBuffer, ext);
+
+  const newPath = media.storage_path.replace(/\.[^.]+$/, "") + "-feed.mp4";
+  const { error: uploadError } = await supabase.storage
+    .from(MEDIA_BUCKET)
+    .upload(newPath, croppedBuffer, { contentType: "video/mp4", upsert: true });
+  if (uploadError) throw uploadError;
+
+  await supabase.storage.from(MEDIA_BUCKET).remove([media.storage_path]);
+
+  const { error: updateError } = await supabase
+    .from("post_media")
+    .update({ storage_path: newPath })
+    .eq("id", mediaId);
+  if (updateError) throw updateError;
+
+  return {
+    id: media.id,
+    post_id: media.post_id,
+    storage_path: newPath,
+    position: media.position,
+    url: mediaPublicUrl(newPath),
   };
 }
 

@@ -20,16 +20,18 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import type { Post, PostMediaItem, PostType } from "@/lib/types";
 import { getSupabaseBrowser, isBrowserUploadConfigured } from "@/lib/supabase-browser";
-import { driveEmbedUrl } from "@/lib/media-link";
+import { driveEmbedUrl, isVideoPath } from "@/lib/media-link";
 import { StatusBadge } from "@/components/StatusBadge";
 
 const MAX_UPLOAD_MB = Number(process.env.NEXT_PUBLIC_MAX_UPLOAD_MB ?? 200);
 
 function SortableThumb({
   media,
+  cropping,
   onDelete,
 }: {
   media: PostMediaItem;
+  cropping: boolean;
   onDelete: (id: string) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -45,8 +47,17 @@ function SortableThumb({
         isDragging ? "opacity-50" : ""
       }`}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={media.url} alt="" className="h-full w-full object-cover" />
+      {isVideoPath(media.storage_path) ? (
+        <video src={media.url} muted playsInline className="h-full w-full object-cover" />
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={media.url} alt="" className="h-full w-full object-cover" />
+      )}
+      {cropping && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/70 text-center font-body text-[10px] text-branco">
+          Cortando...
+        </div>
+      )}
       <button
         onClick={(e) => {
           e.stopPropagation();
@@ -92,6 +103,7 @@ export function AdminPostEditor({
   const [resolving, setResolving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [croppingId, setCroppingId] = useState<string | null>(null);
   const [coverUrl, setCoverUrl] = useState<string | null>(post.cover_url);
   const [coverUploading, setCoverUploading] = useState(false);
   const [coverError, setCoverError] = useState<string | null>(null);
@@ -191,6 +203,26 @@ export function AdminPostEditor({
         if (!confirmRes.ok) throw new Error("Falha ao registrar mídia");
         const { media: newMedia } = await confirmRes.json();
         setMedia((prev) => [...prev, newMedia]);
+
+        if (type === "carrossel" && file.type.startsWith("video/")) {
+          setCroppingId(newMedia.id);
+          try {
+            const cropRes = await fetch(`/api/admin/${slug}/media/${newMedia.id}/crop`, {
+              method: "POST",
+            });
+            if (!cropRes.ok) throw new Error("Falha ao cortar o vídeo pro formato do carrossel");
+            const { media: croppedMedia } = await cropRes.json();
+            setMedia((prev) => prev.map((m) => (m.id === newMedia.id ? croppedMedia : m)));
+          } catch (cropErr) {
+            setUploadError(
+              cropErr instanceof Error
+                ? cropErr.message
+                : "Erro ao cortar o vídeo — o original (vertical) ficou salvo mesmo assim."
+            );
+          } finally {
+            setCroppingId(null);
+          }
+        }
       }
     } catch (e) {
       setUploadError(e instanceof Error ? e.message : "Erro no upload");
@@ -264,7 +296,10 @@ export function AdminPostEditor({
   }
 
   const canUploadMore = type === "carrossel" || media.length === 0;
-  const accept = type === "video" ? "video/*" : "image/*";
+  // Carrossel now allows mixing photos and videos in the same post — a
+  // video dropped in gets auto-cropped from Reels (9:16) to the carousel's
+  // 4:5 ratio (see cropPostVideoMedia / video-crop.ts).
+  const accept = type === "video" ? "video/*" : type === "carrossel" ? "image/*,video/*" : "image/*";
 
   return (
     <div className="flex flex-col gap-6">
@@ -322,7 +357,12 @@ export function AdminPostEditor({
           <SortableContext items={media.map((m) => m.id)} strategy={horizontalListSortingStrategy}>
             <div className="flex flex-wrap gap-2">
               {media.map((m) => (
-                <SortableThumb key={m.id} media={m} onDelete={deleteMedia} />
+                <SortableThumb
+                  key={m.id}
+                  media={m}
+                  cropping={croppingId === m.id}
+                  onDelete={deleteMedia}
+                />
               ))}
             </div>
           </SortableContext>
@@ -341,6 +381,8 @@ export function AdminPostEditor({
             />
             <span className="font-body text-fs-xs text-painel-text-muted">
               Limite de {MAX_UPLOAD_MB}MB por vídeo. Arquivos maiores: use o link externo abaixo.
+              {type === "carrossel" &&
+                " Vídeo de Reels (9:16) é cortado automaticamente pro formato do carrossel (4:5)."}
             </span>
           </div>
         ) : (

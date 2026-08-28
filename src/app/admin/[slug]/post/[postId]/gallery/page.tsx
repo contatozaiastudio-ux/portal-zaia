@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import { getClientBySlug, getMonthById, getPost } from "@/lib/data";
+import { isVideoPath } from "@/lib/media-link";
 import { SetupNotice } from "@/components/SetupNotice";
 
 export default async function PostGalleryPage({
@@ -46,7 +47,7 @@ export default async function PostGalleryPage({
       ) : (
         <div className="flex flex-col gap-4">
           {post.media.map((m, i) =>
-            post.type === "video" ? (
+            isVideoPath(m.storage_path) ? (
               <video
                 key={m.id}
                 src={m.url}

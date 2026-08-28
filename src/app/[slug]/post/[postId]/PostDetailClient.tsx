@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import type { Post } from "@/lib/types";
 import { POST_TYPE_LABEL } from "@/lib/types";
 import { StatusBadge } from "@/components/StatusBadge";
-import { driveEmbedUrl } from "@/lib/media-link";
+import { driveEmbedUrl, isVideoPath } from "@/lib/media-link";
 
 export function PostDetailClient({
   post,
@@ -61,7 +61,7 @@ export function PostDetailClient({
 
       <div className="overflow-hidden rounded-2xl bg-amarelo-manteiga">
         {media ? (
-          post.type === "video" ? (
+          isVideoPath(media.storage_path) ? (
             <video
               src={media.url}
               controls
@@ -109,8 +109,12 @@ export function PostDetailClient({
                 i === mediaIndex ? "border-bordo" : "border-transparent"
               }`}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={m.url} alt="" className="h-full w-full object-cover" />
+              {isVideoPath(m.storage_path) ? (
+                <video src={m.url} muted playsInline className="h-full w-full object-cover" />
+              ) : (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={m.url} alt="" className="h-full w-full object-cover" />
+              )}
             </button>
           ))}
         </div>

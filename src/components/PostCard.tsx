@@ -1,5 +1,6 @@
 import type { Post } from "@/lib/types";
 import { POST_TYPE_LABEL } from "@/lib/types";
+import { isVideoPath } from "@/lib/media-link";
 import { StatusBadge } from "./StatusBadge";
 
 export function postCardBg(type: Post["type"]) {
@@ -15,7 +16,7 @@ export function PostCardContent({ post }: { post: Post }) {
         // eslint-disable-next-line @next/next/no-img-element
         <img src={videoCover} alt={post.caption} className="h-full w-full object-cover" />
       ) : firstMedia ? (
-        post.type === "video" ? (
+        isVideoPath(firstMedia.storage_path) ? (
           <video
             src={firstMedia.url}
             muted

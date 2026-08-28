@@ -68,6 +68,7 @@ export default async function ClientFeedPage({
           </div>
 
           <StrategyEditor
+            key={monthKey}
             slug={slug}
             monthKey={monthKey}
             initialObjective={month?.strategy_objective ?? ""}
@@ -76,7 +77,7 @@ export default async function ClientFeedPage({
 
           <NewPostForm slug={slug} monthKey={monthKey} scripts={unlinkedScripts} />
 
-          <AdminFeedGrid slug={slug} monthKey={monthKey} posts={posts} />
+          <AdminFeedGrid key={monthKey} slug={slug} monthKey={monthKey} posts={posts} />
         </div>
 
         <div className="flex w-full flex-col gap-6 lg:w-80">

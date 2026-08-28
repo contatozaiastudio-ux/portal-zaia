@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export function StrategyEditor({
@@ -24,6 +24,15 @@ export function StrategyEditor({
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Switching months (MonthSelector) keeps this same component mounted —
+  // only the `m` search param changes — so the initial* props update but
+  // useState's initial value doesn't re-run on its own. Sync it explicitly.
+  useEffect(() => {
+    setObjective(initialObjective);
+    setPillars([initialPillars[0] ?? "", initialPillars[1] ?? "", initialPillars[2] ?? ""]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [monthKey]);
 
   async function save() {
     setSaving(true);

@@ -1,14 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Script } from "@/lib/types";
 import { StatusBadge } from "@/components/StatusBadge";
 
-export function AdminScriptList({ slug, scripts }: { slug: string; scripts: Script[] }) {
+export function AdminScriptList({
+  slug,
+  monthKey,
+  scripts,
+}: {
+  slug: string;
+  monthKey: string;
+  scripts: Script[];
+}) {
   const router = useRouter();
   const [items, setItems] = useState(scripts);
+
+  // Switching months keeps this component mounted (same route, only ?m=
+  // changes), so the `scripts` prop updates but useState's initial value
+  // doesn't re-run on its own — sync it explicitly.
+  useEffect(() => {
+    setItems(scripts);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [monthKey]);
 
   async function move(index: number, direction: -1 | 1) {
     const target = index + direction;

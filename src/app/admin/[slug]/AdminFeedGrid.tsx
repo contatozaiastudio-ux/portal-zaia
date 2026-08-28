@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   DndContext,
@@ -73,6 +73,14 @@ export function AdminFeedGrid({
   const router = useRouter();
   const [items, setItems] = useState(posts);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
+
+  // Switching months keeps this component mounted (same route, only ?m=
+  // changes), so the `posts` prop updates but useState's initial value
+  // doesn't re-run on its own — sync it explicitly.
+  useEffect(() => {
+    setItems(posts);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [monthKey]);
 
   async function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;

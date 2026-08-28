@@ -56,7 +56,7 @@ export default async function AdminScriptsPage({
 
       <NewScriptForm slug={slug} monthKey={monthKey} />
 
-      <AdminScriptList key={monthKey} slug={slug} scripts={scripts} />
+      <AdminScriptList slug={slug} monthKey={monthKey} scripts={scripts} />
     </div>
   );
 }

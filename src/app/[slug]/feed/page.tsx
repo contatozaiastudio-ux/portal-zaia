@@ -37,7 +37,6 @@ export default async function ClientFeedPage({
   }
 
   const monthKey = monthParam ?? currentMonthKey();
-  const isCurrentMonth = monthKey === currentMonthKey();
   const [month, months] = await Promise.all([
     getMonth(client.id, monthKey),
     listMonthKeysForClient(client.id),
@@ -64,10 +63,6 @@ export default async function ClientFeedPage({
           pillars={month?.strategy_pillars ?? []}
         />
 
-        {!isCurrentMonth && (
-          <p className="font-body text-xs text-azul-deep">Mês anterior — somente leitura.</p>
-        )}
-
         {posts.length === 0 ? (
           <p className="font-body text-sm text-ink/60">
             Nenhum post cadastrado para este mês ainda.
@@ -79,7 +74,7 @@ export default async function ClientFeedPage({
                 key={post.id}
                 href={`/${slug}/post/${post.id}?${new URLSearchParams({
                   ...(token ? { t: token } : {}),
-                  ...(isCurrentMonth ? {} : { m: monthKey }),
+                  m: monthKey,
                 }).toString()}`}
               >
                 <PostCardContent post={post} />

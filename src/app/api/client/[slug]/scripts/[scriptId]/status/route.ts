@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import {
   clientTokenMatches,
-  currentMonthKey,
   getClientBySlug,
   getMonthById,
   getScript,
@@ -43,9 +42,6 @@ export async function POST(
   const month = await getMonthById(script.month_id);
   if (!month || month.client_id !== client.id) {
     return NextResponse.json({ error: "Roteiro não encontrado" }, { status: 404 });
-  }
-  if (month.month_key !== currentMonthKey()) {
-    return NextResponse.json({ error: "Mês somente leitura" }, { status: 400 });
   }
 
   await setScriptStatus(scriptId, status, comment);

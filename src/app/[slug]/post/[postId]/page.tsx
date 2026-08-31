@@ -1,12 +1,6 @@
 import { notFound } from "next/navigation";
 import { isSupabaseConfigured } from "@/lib/supabase";
-import {
-  clientTokenMatches,
-  currentMonthKey,
-  getClientBySlug,
-  getMonthById,
-  getPost,
-} from "@/lib/data";
+import { clientTokenMatches, getClientBySlug, getMonthById, getPost } from "@/lib/data";
 import { Header } from "@/components/Header";
 import { SetupNotice } from "@/components/SetupNotice";
 import { PostDetailClient } from "./PostDetailClient";
@@ -35,8 +29,6 @@ export default async function ClientPostPage({
   const month = await getMonthById(post.month_id);
   if (!month || month.client_id !== client.id) notFound();
 
-  const isCurrentMonth = month.month_key === currentMonthKey();
-
   return (
     <div className="flex min-h-full flex-col">
       <Header clientName={client.name} />
@@ -45,10 +37,10 @@ export default async function ClientPostPage({
           post={post}
           slug={slug}
           token={token ?? ""}
-          editable={isCurrentMonth}
+          editable
           backHref={`/${slug}/feed?${new URLSearchParams({
             ...(token ? { t: token } : {}),
-            ...(isCurrentMonth ? {} : { m: month.month_key }),
+            m: month.month_key,
           }).toString()}`}
         />
       </main>

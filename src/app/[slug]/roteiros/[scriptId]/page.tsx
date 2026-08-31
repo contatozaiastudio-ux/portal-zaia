@@ -1,12 +1,6 @@
 import { notFound } from "next/navigation";
 import { isSupabaseConfigured } from "@/lib/supabase";
-import {
-  clientTokenMatches,
-  currentMonthKey,
-  getClientBySlug,
-  getMonthById,
-  getScript,
-} from "@/lib/data";
+import { clientTokenMatches, getClientBySlug, getMonthById, getScript } from "@/lib/data";
 import { Header } from "@/components/Header";
 import { SetupNotice } from "@/components/SetupNotice";
 import { ScriptDetailClient } from "./ScriptDetailClient";
@@ -35,8 +29,6 @@ export default async function ClientScriptPage({
   const month = await getMonthById(script.month_id);
   if (!month || month.client_id !== client.id) notFound();
 
-  const isCurrentMonth = month.month_key === currentMonthKey();
-
   return (
     <div className="flex min-h-full flex-col">
       <Header clientName={client.name} />
@@ -45,7 +37,7 @@ export default async function ClientScriptPage({
           script={script}
           slug={slug}
           token={token ?? ""}
-          editable={isCurrentMonth}
+          editable
           backHref={`/${slug}/roteiros${token ? `?t=${token}` : ""}`}
         />
       </main>

@@ -5,6 +5,7 @@ const PILLS: Array<{ key: keyof ClientLinks; label: string }> = [
   { key: "drive_url", label: "Drive" },
   { key: "canva_feed_url", label: "Canva · Feed" },
   { key: "canva_stories_url", label: "Canva · Stories" },
+  { key: "pinterest_url", label: "Pinterest" },
 ];
 
 export function ClientQuickLinks({ links }: { links: ClientLinks | null }) {

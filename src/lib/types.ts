@@ -34,6 +34,7 @@ export interface ClientLinks {
   drive_url: string | null;
   canva_feed_url: string | null;
   canva_stories_url: string | null;
+  pinterest_url: string | null;
 }
 
 export interface ClientContext {

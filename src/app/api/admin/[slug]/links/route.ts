@@ -19,6 +19,7 @@ export async function PATCH(
       drive_url: (body.drive_url ?? "").trim() || null,
       canva_feed_url: (body.canva_feed_url ?? "").trim() || null,
       canva_stories_url: (body.canva_stories_url ?? "").trim() || null,
+      pinterest_url: (body.pinterest_url ?? "").trim() || null,
     });
     return NextResponse.json({ ok: true });
   } catch (e) {

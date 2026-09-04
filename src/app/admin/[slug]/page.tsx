@@ -83,6 +83,7 @@ export default async function ClientHomePage({
         initialDrive={links?.drive_url ?? ""}
         initialCanvaFeed={links?.canva_feed_url ?? ""}
         initialCanvaStories={links?.canva_stories_url ?? ""}
+        initialPinterest={links?.pinterest_url ?? ""}
       />
 
       <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">

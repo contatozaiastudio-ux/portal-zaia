@@ -9,18 +9,21 @@ export function ClientLinksEditor({
   initialDrive,
   initialCanvaFeed,
   initialCanvaStories,
+  initialPinterest,
 }: {
   slug: string;
   initialNotion: string;
   initialDrive: string;
   initialCanvaFeed: string;
   initialCanvaStories: string;
+  initialPinterest: string;
 }) {
   const router = useRouter();
   const [notion, setNotion] = useState(initialNotion);
   const [drive, setDrive] = useState(initialDrive);
   const [canvaFeed, setCanvaFeed] = useState(initialCanvaFeed);
   const [canvaStories, setCanvaStories] = useState(initialCanvaStories);
+  const [pinterest, setPinterest] = useState(initialPinterest);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -38,6 +41,7 @@ export function ClientLinksEditor({
           drive_url: drive,
           canva_feed_url: canvaFeed,
           canva_stories_url: canvaStories,
+          pinterest_url: pinterest,
         }),
       });
       if (!res.ok) throw new Error("Erro ao salvar links");
@@ -69,6 +73,12 @@ export function ClientLinksEditor({
           value={canvaStories}
           onChange={setCanvaStories}
           placeholder="https://canva.com/design/..."
+        />
+        <LinkField
+          label="Pinterest"
+          value={pinterest}
+          onChange={setPinterest}
+          placeholder="https://pinterest.com/..."
         />
       </div>
       <div className="flex items-center gap-3">
